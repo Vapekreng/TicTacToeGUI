@@ -5,15 +5,19 @@ from tkinter.messagebox import showinfo
 GAME_NAME = 'Крестики-нолики'
 FIELD_SIZE = 3
 INIT_FIELD = [[None, None, None], [None, None, None], [None, None, None]]
-INIT_FIELD_ROW = 1
+INIT_FIELD_ROW = 2
 INIT_FIELD_COLUMN = 0
 MAX_COUNTER = 9
 BUTTON_WIDTH = 50
 BUTTON_HEIGHT = 50
+PADS = 20
 INIT_IMAGE_PATH = '0.png'
 FIRST_PLAYER_IMAGE = '1.png'
 SECOND_PLAYER_IMAGE = '2.png'
+INPUT_NAMES_TITLE = 'Ввод имени игроков'
 DEFAULT_NAMES = ['Игрок 1', 'Игрок 2']
+SIGNS = [' (X)', ' (O)']
+TURN_MESSAGE = 'Сейчас ходит '
 WIN_MESSAGE_TITLE = 'Победа!'
 DRAW_MESSAGE_TITLE = 'Ничья!'
 WIN_MESSAGE = 'Победил '
@@ -41,8 +45,9 @@ def get_names():
         name_window.destroy()
 
     name_window = tk.Tk()
+    name_window.title(INPUT_NAMES_TITLE)
     name_frame = tkinter.Frame(name_window)
-    name_frame.pack(expand=True, padx=20, pady=20)
+    name_frame.pack(expand=True, padx=PADS, pady=PADS)
     label_name_1 = tk.Label(name_frame, text='Введите имя первого игрока: ')
     label_name_1.grid(row=0, column=0)
     label_name_2 = tk.Label(name_frame, text='Введите имя второго игрока: ')
@@ -69,7 +74,10 @@ class Game:
         self.window = tk.Tk()
         self.window.title(GAME_NAME)
         self.frame = tk.Frame(self.window)
-        self.frame.pack(expand=True)
+        self.frame.pack(expand=True,padx=PADS, pady=PADS)
+        text = TURN_MESSAGE + self.players_names[self.index] + SIGNS[self.index]
+        self.active_player_label = tk.Label(self.frame, text=text, height=3)
+        self.active_player_label.grid(row=0, column=0, columnspan=3)
         self.init_image = tk.PhotoImage(file=INIT_IMAGE_PATH)
         self.images = [tk.PhotoImage(file=FIRST_PLAYER_IMAGE), tk.PhotoImage(file=SECOND_PLAYER_IMAGE)]
         self._set_buttons()
@@ -84,11 +92,14 @@ class Game:
         if self._we_have_a_winner():
             self._print_winner_message()
             self._finish_game()
-        self.counter += 1
-        self.index = self.counter % 2
-        if self.counter == MAX_COUNTER:
-            self._print_draw_message()
-            self._finish_game()
+        else:
+            self.counter += 1
+            self.index = self.counter % 2
+            if self.counter == MAX_COUNTER:
+                self._print_draw_message()
+                self._finish_game()
+            else:
+                self._print_active_player()
 
     def _we_have_a_winner(self):
         answer = False
@@ -126,7 +137,11 @@ class Game:
 
     def _finish_game(self):
         self.window.destroy()
-        
+
+    def _print_active_player(self):
+        text = TURN_MESSAGE + self.players_names[self.index] + SIGNS[self.index]
+        self.active_player_label['text'] = text
+
 
 
 new_game = Game()
